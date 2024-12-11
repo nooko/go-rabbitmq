@@ -37,16 +37,15 @@ func dial(log logger.Logger, resolver Resolver, conf amqp.Config) (*amqp.Connect
 		return nil, fmt.Errorf("error resolving amqp server urls: %w", err)
 	}
 
-	var errs []error
 	for _, url := range urls {
 		conn, err := amqp.DialConfig(url, amqp.Config(conf))
 		if err == nil {
 			return conn, err
 		}
 		log.Warnf("failed to connect to amqp server %s: %v", maskPassword(url), err)
-		errs = append(errs, err)
 	}
-	return nil, errors.Join(errs...)
+	
+	return nil, errors.New("failed to connect to any amqp server")
 }
 
 func maskPassword(urlToMask string) string {
